@@ -1,6 +1,6 @@
 # Save And Resume your Experiments
 
-This repo contains the code to show how to save checkpoints during training and resume your experiments from them.
+This repo contains the code to show how to save checkpoints during training and how to resume your experiments from them.
 We will show you how to perform it on Tensorflow, Keras and PyTorch.
 
 ## Why checkpointing?
@@ -34,7 +34,7 @@ There are different checkpoint strategies according to the type of training regi
 In this type of training regime is a common practice to save only a checkpoint at the end of the training or at the end of every epoch.
 
 ### Normal Training Regime
-In this type of training regime is a common practice to save multiple checkpoints every n_epochs and keep track about what's the best one with respect to validation metric we care about. Usually there is a fixed number of checkpoints we care about so to not take to much space, such as restrict it to keep only 10 checkpoints(the new ones will replace the last ones).
+In this type of training regime a common practice is to save multiple checkpoints every n_epochs and keep track about what's the best one with respect to a validation metric we care about. Usually there is a fixed number of checkpoints we care about so as to not take too much space, such as restricting it to keep only 10 checkpoints (the new ones will replace the last ones).
 
 ### Long Training Regime
 In this type of training regime is a common practice to save multiple checkpoints every n_epochs and keep track about what's the best one with respect to validation metric we care about. Since the training can be really long, is common to save less frequently but keep more checkpoints file, so that we will be able to resume the training in particular situations.
@@ -48,9 +48,9 @@ The tradeoff is between the **frequency** and the **number of checkpoints files*
 Frequency | Number of checkpoints to keep | Cons | Pro
 --------- | ----------------------------- | ---- | ---
 High | High | You need a lot of space!! | You can resume very quickly in almost all the interesting training states.
-High | Low | You could have lost preciuos states. | Minimize the storage space you need.
+High | Low | You could have lost precious states. | Minimize the storage space you need.
 Low | High | If some things happened between two checkpoints, it will cost you some time to retrieve it. | You can resume the experiments in a lot of interesting states.
-Low | Low | You could have lost preciuos states | Minimize the storage space you need.
+Low | Low | You could have lost precious states | Minimize the storage space you need.
 
 
 Now you have a good intuition about what's the best strategy you can adopt according to your training regime.
@@ -74,9 +74,9 @@ The strategy we have adopted for the next example is the following:
 
 Considering the toy example, a Short Training Regime provide a good strategy.
 
-*As said this tutorial follows a basic setup, if you have a more sofisticated experiments you will have to hack it.*
+*As said this tutorial follows a basic setup, if you have a more sophisticated experiment you will have to hack it.*
 
-This is the basic template you have to follow for saving and resuming when you run your experimets on FloydHub *via script*:
+This is the basic template you have to follow for saving and resuming when you run your experiments on FloydHub *via script*:
 
 #### Saving Template command
 
@@ -88,7 +88,7 @@ floyd run \
     "python <script_and_parameters>"
 ```
 
-The checkpoint of this script must be saved in the `/output` foler.
+The checkpoint of this script must be saved in the `/output` folder.
 
 #### Resuming Template after training
 
@@ -100,7 +100,7 @@ floyd run \
     --data <output_of_previuos_job>:<mounting_point_model> \
     "python <script_and_parameters>"
 ```
-The scipt will resum the checkpoint from the previus Job's Output.
+The script will resume the checkpoint from the previous Job's Output.
 
 Let's see how to make it tangible for the different framework on FloydHub.
 
@@ -116,7 +116,7 @@ More in detail, it uses the first function to save, the second one to act accord
 
 ### Saving
 
-Before init an Estimator, we have to define the checkpoint strategy. To do this we have to create a configuration for the Estimator using the [tf.estimator.RunConfig](https://www.tensorflow.org/api_docs/python/tf/estimator/RunConfig) API such this:
+Before initializing an Estimator, we have to define the checkpoint strategy. To do this we have to create a configuration for the Estimator using the [tf.estimator.RunConfig](https://www.tensorflow.org/api_docs/python/tf/estimator/RunConfig) API such this:
 
 ```python
 # Checkpoint Strategy configuration
@@ -139,9 +139,9 @@ That's it about saving a checkpoint in Tensorflow using Estimator.
 
 ### Resuming
 
-After having configurated the Estimator, everything is done. If it will find a checkpoint inside the given model folder, it will load the last one.
+After having configured the Estimator, everything is done. If it will find a checkpoint inside the given model folder, it will load the last one.
 
-That's it about resuming a checkpoint in Tensorflow using Estimator.
+That's it about resuming from a checkpoint in Tensorflow using Estimator.
 
 ### Run on FloydHub
 Here's the steps to run the example on FloydHub.
@@ -175,7 +175,7 @@ floyd run \
 
 - The `--env` flag specifies the environment that this project should run on, which is Tensorflow 1.3.0 + Keras 2.0.6 on Python3.6,
 - The first `--data` flag specifies that the pytorch-mnist dataset should be available at the `/input` directory,
-- The second `--data` flag specifies that the output of a previus Job should be available at the `/model` directory,
+- The second `--data` flag specifies that the output of a previous Job should be available at the `/model` directory,
 - Note that the `--gpu` flag is optional for now, unless you want to start right away to run the code on a GPU machine.
 
 
@@ -191,7 +191,7 @@ floyd run \
 
 - The `--env` flag specifies the environment that this project should run on, which is Tensorflow 1.3.0 + Keras 2.0.6 on Python3.6.
 - The `--data` flag specifies that the pytorch-mnist dataset should be available at the `/input` directory,
-- Note that the `--gpu` flag is optional for now, unless you want to start right away to run the code on a GPU machine.
+- Note that the `--gpu` flag is optional for now, unless you want to start running the code on a GPU machine right away.
 - The `--mode` flag specifies that this job should provide us a Jupyter notebook.
 
 Add `--data <your-username>/projects/save-and-resume/<jobs>/output:/model`, if you want to load a checkpoint from a previous Job.
@@ -200,12 +200,12 @@ Add `--data <your-username>/projects/save-and-resume/<jobs>/output:/model`, if y
 
 ![Keras logo](https://s3.amazonaws.com/keras.io/img/keras-logo-2018-large-1200.png)
 
-Keras provide a great API for saving and loading a checkpoints. Let's take a look:
+Keras provides a great API for saving and loading checkpoints. Let's take a look:
 
 ### Saving
 Keras provides a set of functions called [callback](https://keras.io/callbacks/): you can think of it as events that will triggered at certain training state. The callback we need for checkpointing is the [ModelCheckpoint](https://keras.io/callbacks/#modelcheckpoint) which provides all the features we need according to the checkpoint strategy adopted.
 
-**This function save only the model's weights**, if you want to save the whole model or some of the components take a look at [how can i save a keras model from Keras docs](https://keras.io/getting-started/faq/#how-can-i-save-a-keras-model).
+**This function save only the model's weights**, if you want to save the whole model or some of the components take a look at [how can I save a Keras model from Keras docs](https://keras.io/getting-started/faq/#how-can-i-save-a-keras-model).
 
 First of all we have to import the callback functions:
 ```python
@@ -255,7 +255,7 @@ Epoch <n_epoch>: val_acc improved from <previus val_acc> to <new max val_acc>, s
 Epoch <n_epoch>: val_acc did not improve
 ```
 
-That's it about saving a checkpoint in Keras.
+That's it about saving to a checkpoint in Keras.
 
 ### Resuming
 Keras models have the [`load_weights()`](https://github.com/fchollet/keras/blob/master/keras/models.py#L718-L735) method which load the weights from a hdf5 file.
@@ -268,7 +268,7 @@ To load the model's weight you have to add this line just after the model defini
 model.load_weights(resume_weights)
 ```
 
-That's it about resuming a checkpoint in Keras.
+That's it about resuming from a checkpoint in Keras.
 
 
 ### Run on FloydHub
@@ -288,7 +288,7 @@ floyd run \
 - The `--env` flag specifies the environment that this project should run on, which is Tensorflow 1.3.0 + Keras 2.0.6 on Python3.6.
 - Note that the `--gpu` flag is optional for now, unless you want to start right away to run the code on a GPU machine.
 
-[Keras provide an API to handle MNIST data](https://keras.io/datasets/#mnist-database-of-handwritten-digits), so we can skip the dataset mounting since the dataset size is irrilevant.
+[Keras provide an API to handle MNIST data](https://keras.io/datasets/#mnist-database-of-handwritten-digits), so we can skip the dataset mounting since the dataset size is irrelevant.
 
 Resuming:
 
@@ -301,7 +301,7 @@ floyd run \
 ```
 
 - The `--env` flag specifies the environment that this project should run on, which is Tensorflow 1.3.0 + Keras 2.0.6 on Python3.6.
-- The `--data` flag specifies that the output of a previus Job should be available at the `/model` directory
+- The `--data` flag specifies that the output of a previous Job should be available at the `/model` directory
 - Note that the `--gpu` flag is optional for now, unless you want to start right away to run the code on a GPU machine.
 
 
@@ -346,7 +346,7 @@ def save_checkpoint(state, is_best, filename='/output/checkpoint.pth.tar'):
         print ("=> Validation Accuracy did not improve")
 ```
 
-Then, inside the training(usually a for loop with the number of epochs), we define the checkpoint frequency(at the end of every epoch) and the informations(epochs, model weights and best accuracy achieved) we want to save:
+Then, inside the training (usually a for loop with the number of epochs), we define the checkpoint frequency (at the end of every epoch) and the information (epochs, model weights and best accuracy achieved) we want to save:
 
 ```python
 ...
@@ -428,7 +428,7 @@ floyd run \
 
 - The `--env` flag specifies the environment that this project should run on, which is a PyTorch 0.2.0 on Python 3.
 - The first `--data` flag specifies that the pytorch-mnist dataset should be available at the `/input` directory
-- The second `--data` flag specifies that the output of a previus Job should be available at the `/model` directory
+- The second `--data` flag specifies that the output of a previous Job should be available at the `/model` directory
 - Note that the `--gpu` flag is optional for now, unless you want to start right away to run the code on a GPU machine.
 
 #### Via Jupyter
@@ -453,5 +453,3 @@ Have a great training :)
 ## Contributing
 
 For any questions, bug(even typos) and/or features requests do not hesitate to contact me, open an issue or a PR!
-
-
